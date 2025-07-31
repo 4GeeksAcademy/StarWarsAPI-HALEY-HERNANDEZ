@@ -12,8 +12,6 @@ class User(db.Model):
         String(120), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
-    # favorites: Mapped[list["Favorite"]] = relationship(
-    #     "Favorite", back_populates="user")   THIS IS WHERE I LEFT OFF
 
     def serialize(self):
         return {
@@ -58,17 +56,14 @@ class Planet (db.Model):
 class Favorite (db.Model):
     __tablename__ = "favorite"
     id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    link: Mapped[str] = mapped_column(String(120), nullable=False)
     user_id: Mapped[int] = mapped_column(db.ForeignKey("user.id"))
-    people_id: Mapped[int] = mapped_column(
-        db.ForeignKey('people.id'), nullable=True)
-    planet_id: Mapped[int] = mapped_column(
-        db.ForeignKey('planet.id'), nullable=True)
-    # user: Mapped["User"] = relationship("User", back_populates="favorites") THIS IS WHERE I LEFT OFF
 
     def serialize(self):
         return {
             "id": self.id,
-            "user_id": self.user_id,
-            "people_id": self.people_id,
-            "planet_id": self.planet_id
+            "name": self.name,
+            "link": self.link,
+            "user_id": self.user_id
         }

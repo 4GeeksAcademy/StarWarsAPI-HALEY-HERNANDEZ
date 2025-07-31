@@ -86,17 +86,46 @@ def get_users():
     return jsonify(users_dictionary), 200
 
 
-@app.route('/users/<int:user_id>/favorites', methods=['GET'])
-def get_users_favorites(user_id):
-    users_favorites = users_favorites.query.all()
-    users_dictionary = []
-    for user in users_favorites:
-        users_dictionary.append(user.serialize())
+@app.route('/favorites', methods=['GET'])
+def get_favorites():
+    favorites = Favorite.query.all()
+    favorites_dictionary = []
+    for favorite in favorites:
+        favorites_dictionary.append(favorite.serialize())
 
-    return jsonify(users_dictionary), 200
+    return jsonify(favorites_dictionary), 200
 
 
-# this only runs if `$ python src/app.py` is executed
+@app.route('/<users>/favorites', methods=['POST'])
+def post_favorite(users):
+
+    body = request.json
+    favorite = Favorite(name=body["name"], link=body["link"], user_id=users)
+    db.session.add(favorite)
+    db.session.commit()
+
+    return "worked", 200
+
+
+@app.route('/<users>/favorites', methods=['GET'])
+def get_user_favorites(users):
+
+    favorites = Favorite.query.filter_by(user_id=users)
+    favorites_dictionary = []
+    for favorite in favorites:
+        favorites_dictionary.append(favorite.serialize())
+    return "worked", 200
+
+
+@app.route('/favorites/<int:favorite_id>', methods=['DELETE'])
+def delete_favorite(favorite_id):
+
+    favorite = db.session.get(Favorite, favorite_id)
+    db.session.delete(favorite)
+    db.session.commit()
+    return "worked", 200
+
+
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
     app.run(host='0.0.0.0', port=PORT, debug=False)
